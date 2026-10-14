@@ -1,0 +1,14 @@
+input: 'image_paths.csv'     # CSV with a path column, or a .txt with one path per line
+path_column: 'file_path'
+output: 'ocr_results.csv'
+batch_size: 8
+save_text: false             # include the raw OCR text as a column
+
+# Set any field to false to skip it
+fields:
+  lengths: true
+  acquisition_protocol: true
+  frequency: true
+  gain: true
+  zoom: true
+  depth: true
