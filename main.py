@@ -19,6 +19,10 @@ def build_config(args, parser) -> dict:
         config["batch_size"] = args.batch_size
     if args.save_text:
         config["save_text"] = True
+    if args.num_workers:
+        config["num_workers"] = args.num_workers
+    if args.save_every:
+        config["save_every"] = args.save_every
 
     for key in ("input", "output"):
         if key not in config:
@@ -34,6 +38,8 @@ def main():
     parser.add_argument("--path-column", help="Name of the path column (default: file_path)")
     parser.add_argument("--batch-size", type=int)
     parser.add_argument("--save-text", action="store_true", help="Include the raw OCR text in the output")
+    parser.add_argument("--num-workers", type=int, help="Parallel OCR processes (default: 1)")
+    parser.add_argument("--save-every", type=int, help="Write the output CSV every N batches (default: 100)")
     args = parser.parse_args()
     run_ocr(build_config(args, parser))
 

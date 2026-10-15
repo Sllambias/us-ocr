@@ -2,6 +2,8 @@ input: 'image_paths.csv'     # CSV with a path column, or a .txt with one path p
 path_column: 'file_path'
 output: 'ocr_results.csv'
 batch_size: 8
+num_workers: 1               # parallel OCR processes, each loads its own model
+save_every: 100              # write the output CSV every N batches
 save_text: false             # include the raw OCR text as a column
 
 # Set any field to false to skip it

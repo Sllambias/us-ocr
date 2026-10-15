@@ -19,6 +19,15 @@ python main.py --input image_paths.csv --path-column file_path --output ocr_resu
 python main.py --config ocr_config.yaml
 ```
 
+### Parallel runs and resuming
+
+`--num-workers N` runs N OCR processes in parallel, each with its own copy of the model.
+The output CSV is written every `--save-every` batches (default 100) and at the end.
+
+If the output CSV already exists, paths already in it are skipped and new rows are appended,
+so an interrupted run can be restarted with the same command. Rows with an `error` are not
+retried; delete them from the output CSV to re-run them.
+
 ## Output
 
 The input columns, plus:
@@ -39,6 +48,6 @@ Fields can be disabled under `fields:` in `ocr_config.yaml`.
 | file | responsibility |
 |---|---|
 | `main.py` | entry point, argument parsing and config merging |
-| `pipeline.py` | batching, docTR OCR, assembling and writing the CSV |
+| `pipeline.py` | batching, parallel docTR OCR, resuming, writing the CSV |
 | `image_io.py` | reading the path list; loading DICOM/PNG/JPEG as RGB arrays |
 | `parsers.py` | regex extractors for lengths, frequency, gain, zoom, depth, protocol |
