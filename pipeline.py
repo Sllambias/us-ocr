@@ -63,7 +63,9 @@ def read_existing(output_path: str):
 
 def write_output(df, results, existing, output_path) -> pd.DataFrame:
     """Write the existing rows plus the processed rows of df to the output CSV."""
-    new = pd.DataFrame.from_dict(results, orient="index").sort_index()
+    # Build rows in input order, since batches finish out of order
+    indices = sorted(results)
+    new = pd.DataFrame([results[idx] for idx in indices], index=indices)
     out = pd.concat([df.loc[new.index], new], axis=1)
     if existing is not None:
         out = pd.concat([existing, out], ignore_index=True)
