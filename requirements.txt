@@ -3,7 +3,15 @@ torch
 torchvision
 numpy
 pandas
-pydicom
 pillow
 pyyaml
 tqdm
+#python-gdcm==3.0.26
+#pylibjpeg==2.1.0
+#pylibjpeg-libjpeg==2.3.0
+#pydicom==2.3.1
+python-gdcm==3.2.6
+pylibjpeg==2.1.0
+pylibjpeg-libjpeg==2.4.0
+pydicom==3.0.2
+matplotlib
