@@ -6,7 +6,8 @@ ALL_FIELDS = ["lengths", "acquisition_protocol", "frequency", "gain", "zoom", "d
 
 def extract_d_mm_values(text: str) -> list:
     """Caliper lengths ('D= 32.1 mm', 'L 3.2 cm') as floats in millimetres."""
-    pattern = r"[DL]\.?=?\s*([\d.]+)\s*(mm|cm)"
+    # pattern = r"[DL]\.?=?\s*([\d.]+)\s*(mm|cm)"
+    pattern = r"CervixL\.?=?\s*([\d.]+)\s*(mm|cm)"
     values = []
     for value, unit in re.findall(pattern, text):
         try:
@@ -20,15 +21,23 @@ def extract_d_mm_values(text: str) -> list:
 def extract_frequency(text: str) -> Optional[str]:
     """Probe frequency setting: 'Har-High/Mid/Low', then 'Resol'/'Penetration', then 'Freq <n> MHz'."""
     patterns = [
-        r"Har-?\s*(High|Mid|Low)",
-        r"(Resol|Penetration)",
-        r"(Frq|Freq|Frequency)\s*([\d.]+\s*MHz?)?",
+        # r"Har-?\s*(High|Mid|Low)",
+        # r"(Resol|Penetration)",
+        # r"(Frq|Freq|Frequency)\s*([\d.]+\s*MHz?)?",
+        r"(HI H PI|Augment)",
     ]
     for pattern in patterns:
         results = re.findall(pattern, text, re.IGNORECASE)
         if results:
             first = results[0]
             return first if isinstance(first, str) else " ".join(first).strip()
+    return None
+
+
+def extract_sector_width(text: str) -> Optional[float]:
+    match = re.search(r"(\d+(?:\.\d+)?)\s*°\s*/\s*\d+(?:\.\d+)?", text)
+    if match:
+        return float(match.group(1))
     return None
 
 
@@ -50,22 +59,12 @@ def extract_depth(text: str) -> Optional[float]:
 
 
 def extract_zoom(text: str) -> Optional[float]:
-    """Zoom level: a decimal number adjacent to a 'Hz' or 'cm' token."""
-    segments = []
-    for seg in text.split("/"):
-        segments.extend(seg.split(" "))
-    segments = [s.strip() for s in segments if s.strip()]
-
-    def has_unit(s):
-        return "Hz" in s or "cm" in s
-
-    for i in range(1, len(segments) - 1):
-        prev_seg, curr_seg, next_seg = segments[i - 1], segments[i], segments[i + 1]
-        if has_unit(curr_seg) or not (has_unit(prev_seg) or has_unit(next_seg)):
-            continue
-        match = re.search(r"^[^a-zA-Z0-9]*(\d+\.\d+)[^a-zA-Z0-9]*$", curr_seg)
-        if match:
+    match = re.search(r"\d+(?:\.\d+)?\s*°\s*/\s*(\d+(?:\.\d+)?)", text)
+    if match:
+        try:
             return float(match.group(1))
+        except ValueError:
+            return None
     return None
 
 
@@ -84,6 +83,7 @@ def extract_gain(text: str) -> Optional[float]:
 def parse_text(text: str, fields: dict) -> dict:
     """Run the enabled extractors on one image's OCR text."""
     row = {}
+    row["sector_width"] = extract_sector_width(text)
     if fields.get("lengths"):
         lengths = extract_d_mm_values(text)
         row["lengths_mm"] = ";".join(str(v) for v in lengths)
