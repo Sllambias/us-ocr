@@ -1,0 +1,43 @@
+file_path,subject_id,sector_width,lengths_mm,CL_sum,CL_max,protocol,frequency,gain,zoom,depth,ocr_text,error
+data/images/P001/IM_0001.dcm,P001,146.0,32.1,32.1,32.1,Cervix dybde 1,HI H PI,5.0,1.2,16.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 5 C5 / M5 P4 / E4 SRI 3 HI H PI / 16.0 cm Cervix dybde 1 1 CervixL= 32.1 mm,
+data/images/P001/IM_0002.dcm,P001,146.0,30.4,30.4,30.4,Cervix dybde 2,HI H PI,5.0,1.2,16.0,Voluson E10 RIC5-9-D Gyn TIs0.2 MI0.9 146°/1.2 Gn5 C5/M5 HIHPI /16cm Cervix dybde 2 1 CervixL=30.4mm,
+data/images/P002/IM_0001.dcm,P002,146.0,32.0,32.0,32.0,Cervix dybde 3,HI H PI,3.0,1.0,14.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146° / 1.0 Gn 3 HI HPI / 14.0 cm Cervix dybde 3 1 CervixL 3.2 cm,
+data/images/P002/IM_0002.dcm,P002,146.5,28.700000000000003,28.700000000000003,28.700000000000003,Cervix,HI H PI,4.0,0.8,12.5,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146.5°/0.8 Gn 4 HIH PI /12.5 cm Cervix 1 CervixL. 2.87 cm,
+data/images/P003/IM_0001.dcm,P003,,,,,,,,,,,load failed: [Errno 2] No such file or directory: 'data/images/P003/IM_0001.dcm'
+data/images/P003/IM_0002.dcm,P003,146.0,25.0;31.2;28.4,84.6,31.2,Cervix dybde 1,HI H PI,-3.0,1.4,10.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.4 Gn -3 HI HI PI / 10.0 cm Cervix dybde 1 1 CervixL= 25.0 mm 2 CervixL= 31.2 mm 3 CervixL= 28.4 mm,
+data/images/P003/IM_0003.dcm,P003,146.0,30.5;29.0,59.5,30.5,Cervix dybde 2,HI H PI,-3.0,1.2,16.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn - 3 HI H I PI / 16.0 cm Cervix dybde 2 1 CervixL.= 30.5 mm 2 CervixL 2.9 cm,
+data/images/P004/IM_0001.dcm,P004,146.0,35.0,35.0,35.0,Cervix dybde 1,HI H PI,2.0,1.2,16.0,1 CervixL 3.5 cm Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 2 HI H PI / 16.0 cm Cervix dybde 1,
+data/images/P004/IM_0002.dcm,P004,146.0,33.0,33.0,33.0,Cervix dybde 3,HI H PI,,1.2,16.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 1.2.3 HI H PI / 16.0 cm Cervix dybde 3 1 CervixL= 3.2.1 mm 2 CervixL= 33.0 mm,
+data/images/P005/IM_0001.dcm,P005,146.0,,0.0,0.0,Cervix dybde 2,HI H PI,6.0,1.2,16.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 6 HI H PI / 16.0 cm Cervix dybde 2 1 CervixL = 32.1 mm 2 CervixL= 29.8,
+data/images/P005/IM_0002.dcm,P005,146.0,,0.0,0.0,Cervix,HI H PI,6.0,1.2,16.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 6 HI H PI / 16.0 cm Cervix 1 Cervix L= 31.0 mm 2 CervixL= 29.8 mn 3 cervixl= 30.0 mm,
+data/images/P006/IM_0001.dcm,P006,146.0,34.6,34.6,34.6,,HI H PI,5.0,1.2,16.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 5 HI H PI / 16.0 cm 1 CervixL= 34.6 mm,
+data/images/P006/IM_0002.dcm,P006,146.0,,0.0,0.0,Cervix,HI H PI,5.0,1.2,16.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 5 HI H PI / 16.0 cm Cervix dybde 4,
+data/images/P006/IM_0003.dcm,P006,146.0,31.7,31.7,31.7,Cervix,HI H PI,5.0,1.2,16.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 5 HI H PI / 16.0 cm Cervix dybde1 1 CervixL= 31.7 mm,
+data/images/P007/IM_0001.dcm,P007,146.0,,0.0,0.0,,HI H PI,5.0,1.2,16.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 5 HI H PI / 16.0 cm CERVIX,
+data/images/P007/IM_0002.dcm,P007,146.0,,0.0,0.0,,HI H PI,5.0,1.2,16.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 5 HI H PI / 16.0 cm cervix dybde 2,
+data/images/P008/IM_0001.dcm,P008,,,,,,,,,,,load failed: File is missing DICOM File Meta Information header or the 'DICM' prefix is missing from the header. Use force=True to force reading.
+data/images/P009/cervix_01.png,P009,146.0,36.2,36.2,36.2,Cervix dybde 1,Augment,8.0,1.2,15.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 8 Augment / 15.0 cm Cervix dybde 1 1 CervixL= 36.2 mm,
+data/images/P009/cervix_02.png,P009,146.0,35.9,35.9,35.9,Cervix dybde 2,Augment,-2.5,1.2,15.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn-2.5 augment / 15.0 cm Cervix dybde 2 1 CervixL= 35.9 mm,
+data/images/P009/cervix_03.jpg,P009,146.0,36.0,36.0,36.0,Cervix dybde 3,Augment,0.0,1.2,15.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 0 AUGMENT / 15.0 cm Cervix dybde 3 1 CervixL= 36.0 mm,
+data/images/P010/cervix_01.png,P010,146.0,29.1,29.1,29.1,Cervix dybde 1,HI H PI,5.0,1.2,16.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 5 HI H PI Augment / 16.0 cm Cervix dybde 1 1 CervixL= 29.1 mm,
+data/images/P010/cervix_02.png,P010,146.0,29.4,29.4,29.4,Cervix dybde 1,,5.0,1.2,16.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 5 HI H P1 / 16.0 cm Cervix dybde 1 1 CervixL= 29.4 mm,
+data/images/P010/cervix_03.png,P010,,,,,,,,,,,"load failed: Unsupported image shape (600, 800, 2)"
+data/images/P010/cervix_04.png,P010,146.0,29.6,29.6,29.6,Cervix dybde 1,,5.0,1.2,16.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 5 H1 H PI / 16.0 cm Cervix dybde 1 1 CervixL= 29.6 mm,
+data/images/P009/cervix_04.png,P009,146.0,35.5,35.5,35.5,Cervix,HI M PI,7.0,1.2,15.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 7 HI M PI / 15.0 cm Cervix 1 CervixL= 35.5 mm,
+data/images/P009/cervix_05.png,P009,146.0,35.7,35.7,35.7,Cervix dybde 1,HI M PI,7.0,1.2,15.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 7 HIMPI /15.0cm Cervix dybde 1 1 CervixL= 35.7 mm,
+data/images/P010/cervix_05.png,P010,146.0,29.0,29.0,29.0,Cervix,HI L PI,5.0,1.2,16.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 5 HI L PI / 16.0 cm Cervix 1 CervixL= 29.0 mm,
+data/images/P010/cervix_06.png,P010,146.0,,0.0,0.0,Cervix dybde 2,HI L PI,5.0,1.2,16.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 5 HI LI PI / 16.0 cm Cervix dybde 2,
+data/images/P011/IM_0004.dcm,P011,146.0,28.2,28.2,28.2,Cervix dybde 2,HI H PI,5.0,1.2,,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 5 HI H PI 16.0 cm Cervix dybde 2 1 CervixL= 28.2 mm,
+data/images/P016/IM_0001.dcm,P016,146.0,,0.0,0.0,Cervix dybde 1,HI H PI,5.0,1.2,16.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 5 HI H PI / 16.0 cm Cervix dybde 1,
+data/images/P011/IM_0001.dcm,P011,,27.5,27.5,27.5,Cervix dybde 2,HI H PI,,,16.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146/1.2 GN 5 HI H PI / 16.0 cm Cervix dybde 2 1 CervixL= 27.5 mm,
+data/images/P011/IM_0002.dcm,P011,,27.8,27.8,27.8,Cervix dybde 2,HI H PI,,,16.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146o/1.2 Gn C5 / M5 HI H PI / 16.0 cm Cervix dybde 2 1 CervixL= 27.8 mm,
+data/images/P011/IM_0003.dcm,P011,,28.0,28.0,28.0,Cervix dybde 2,HI H PI,5.0,,,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°1.2 Gn 5 HI H PI / 16.0 Cm Cervix dybde 2 1 CervixL= 28.0 mm,
+data/images/P012 repeat/IM_0001.dcm,P012 repeat,90.0,41.0,41.0,41.0,Cervix dybde 1,HI H PI,12.5,1.0,8.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 90 ° / 1 Gn 12.5 HI H PI / 8 cm Cervix dybde 1 1 CervixL= 41.0 mm,
+data/images/P012 repeat/IM_0002.dcm,P012 repeat,146.0,40.2,40.2,40.2,Cervix dybde 1,HI H PI,5.0,1.2,,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 5 HI H PI / 1.6.0 cm Cervix dybde 1 1 CervixL= 40.2 mm,
+data/images/P013/IM_0001.dcm,P013,146.0,26.3,26.3,26.3,Cervix dybde 3,HI H PI,5.0,1.2,16.0,"Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 FR 23Hz, SRI 3 146°/1.2 Gn 5 HI H PI / 16.0 cm Cervix dybde 3 1 CervixL= 26.3 mm",
+data/images/P013/IM_0002.dcm,P013,,,0.0,0.0,,,,,,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9,
+data/images/P013/IM_0003.dcm,P013,,,0.0,0.0,,,,,,,
+data/images/P014/cervix_01.jpg,P014,,,,,,,,,,,load failed: cannot identify image file 'data/images/P014/cervix_01.jpg'
+data/images/P014/cervix_02.jpg,P014,146.0,30.0,30.0,30.0,Cervix dybde 2,HI H PI,5.0,1.2,16.0,Voluson E10 RIC5-9-D Gyn TIs 0.2 MI 0.9 146°/1.2 Gn 5 HI H PI / 16.0 cm Cervix dybde 2 1 CervixL= 30.0 mm,
+data/images/P015/IM_0001.dcm,P015,,,,,,,,,,,OCR failed: [enforce fail at alloc_cpu.cpp:117] data. DefaultCPUAllocator: not enough memory: you tried to allocate 2147483648 bytes.
+data/images/P015/IM_0002.dcm,P015,,,,,,,,,,,OCR failed: [enforce fail at alloc_cpu.cpp:117] data. DefaultCPUAllocator: not enough memory: you tried to allocate 2147483648 bytes.
