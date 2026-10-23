@@ -24,11 +24,12 @@ def extract_d_mm_values(text: str) -> list:
 
 
 def extract_frequency(text: str) -> Optional[str]:
-    """Probe frequency setting: 'HI H PI' or 'Augment'."""
+    """Probe frequency setting: 'HI H PI', 'HI M PI', 'HI L PI' or 'Augment'."""
     # docTR often merges or splits these words and reads stray 'I's,
     # e.g. 'HIHPI', 'HI HPI', 'HIH PI', 'HI HI PI'
-    if re.search(r"HI[\sI]*H[\sI]*PI", text):
-        return "HI H PI"
+    match = re.search(r"HI[\sI]*([HML])[\sI]*PI", text)
+    if match:
+        return f"HI {match.group(1)} PI"
     if re.search(r"Augment", text, re.IGNORECASE):
         return "Augment"
     return None
@@ -44,13 +45,14 @@ def extract_sector_width_and_zoom(text: str) -> tuple:
 
 def extract_acquisition_protocol(text: str) -> Optional[str]:
     """Cervix acquisition protocol label ('Cervix', 'Cervix dybde 1-3'). Study-specific."""
-    match = re.search(r"Cervix dybde [123]|Cervix", text)
+    # 'Cervix' not followed by 'L', so the 'CervixL' caliper label is not a protocol
+    match = re.search(r"Cervix dybde [123]|Cervix(?!L)", text)
     return match.group(0) if match else None
 
 
 def extract_depth(text: str) -> Optional[float]:
-    """Image depth in cm."""
-    match = re.search(r"([\d.]+)\s*cm", text)
+    """Image depth in cm, following a '/' ('/16.0 cm' or '/ 16.0 cm')."""
+    match = re.search(r"/ ?([\d.]+)\s*cm", text)
     return parse_float(match.group(1)) if match else None
 
 
