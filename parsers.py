@@ -51,9 +51,15 @@ def extract_acquisition_protocol(text: str) -> Optional[str]:
 
 
 def extract_depth(text: str) -> Optional[float]:
-    """Image depth in cm, following a '/' ('/16.0 cm' or '/ 16.0 cm')."""
-    match = re.search(r"/ ?([\d.]+)\s*cm", text)
-    return parse_float(match.group(1)) if match else None
+    """Image depth in cm. If there are several '<n> cm' values, the one after
+    a '/' ('/16.0 cm' or '/ 16.0 cm') is used, otherwise the first."""
+    matches = re.findall(r"(/ ?)?([\d.]+)\s*cm", text)
+    if not matches:
+        return None
+    for slash, value in matches:
+        if slash:
+            return parse_float(value)
+    return parse_float(matches[0][1])
 
 
 def extract_gain(text: str) -> Optional[float]:

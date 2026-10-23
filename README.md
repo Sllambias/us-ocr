@@ -38,7 +38,7 @@ The input columns, plus:
 | `CL_sum`, `CL_max` | sum and max of those lengths (0 if none) |
 | `protocol` | `Cervix` / `Cervix dybde 1-3` (study-specific) |
 | `frequency` | `HI H PI` / `HI M PI` / `HI L PI` / `Augment` (empty if not found) |
-| `gain`, `zoom`, `depth` | parsed settings (empty if not found); depth is the `<n> cm` after a `/` |
+| `gain`, `zoom`, `depth` | parsed settings (empty if not found); depth is the `<n> cm` after a `/` if there is one, else the first `<n> cm` |
 | `error` | set if the image could not be loaded or OCR failed |
 | `ocr_text` | raw OCR text (only with `--save-text`) |
 
