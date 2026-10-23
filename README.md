@@ -37,11 +37,25 @@ The input columns, plus:
 | `lengths_mm` | all caliper lengths found, in mm, `;`-separated |
 | `CL_sum`, `CL_max` | sum and max of those lengths (0 if none) |
 | `protocol` | `Cervix` / `Cervix dybde 1-3` (study-specific) |
-| `frequency`, `gain`, `zoom`, `depth` | parsed settings (empty if not found) |
+| `frequency` | `HI H PI` / `HI M PI` / `HI L PI` / `Augment` (empty if not found) |
+| `gain`, `zoom`, `depth` | parsed settings (empty if not found); depth is the `<n> cm` after a `/` |
 | `error` | set if the image could not be loaded or OCR failed |
 | `ocr_text` | raw OCR text (only with `--save-text`) |
 
 Fields can be disabled under `fields:` in `ocr_config.yaml`.
+
+## Stats
+
+`get_OCR_stats.py` summarises the cervix scans in an output CSV: (A) how many of the 4 cervix
+protocols each subject has, (B) how many cervix scans have frequency, gain, sector width / zoom and
+depth, and (C) how many subjects have a `CervixL` length in at least one cervix scan.
+
+```
+python get_OCR_stats.py --input ocr_results.csv
+python get_OCR_stats.py --input ocr_results.csv --subject-column subject_id --output protocols_per_subject.csv
+```
+
+Subjects are taken from `--subject-column` if given, otherwise from each image's parent folder.
 
 ## Code layout
 
@@ -51,3 +65,4 @@ Fields can be disabled under `fields:` in `ocr_config.yaml`.
 | `pipeline.py` | batching, parallel docTR OCR, resuming, writing the CSV |
 | `image_io.py` | reading the path list; loading DICOM/PNG/JPEG as RGB arrays |
 | `parsers.py` | regex extractors for lengths, frequency, gain, zoom, depth, protocol |
+| `get_OCR_stats.py` | per-subject protocol counts and field coverage of an output CSV |
