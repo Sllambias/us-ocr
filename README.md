@@ -46,9 +46,10 @@ Fields can be disabled under `fields:` in `ocr_config.yaml`.
 
 ## Stats
 
-`get_OCR_stats.py` summarises the cervix scans in an output CSV: (A) how many of the 4 cervix
-protocols each subject has, (B) how many cervix scans have frequency, gain, sector width / zoom and
-depth, and (C) how many subjects have a `CervixL` length in at least one cervix scan.
+`get_OCR_stats.py` summarises the cervix scans in an output CSV, with counts and percentages:
+(A) how many subjects have each of the 4 cervix protocols and how many have 0-4 of them, (B) how many
+cervix scans have frequency, gain, sector width / zoom and depth, and (C) how many subjects have a
+`CervixL` length in at least one cervix scan. `--output` saves the per-subject protocol counts.
 
 ```
 python get_OCR_stats.py --input ocr_results.csv

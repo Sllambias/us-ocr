@@ -26,19 +26,34 @@ def protocols_per_subject(df: pd.DataFrame) -> pd.DataFrame:
     return counts
 
 
+def with_percent(counts: pd.Series, total: int, name: str) -> pd.DataFrame:
+    """Counts and their percentage of total as a two-column table."""
+    return pd.DataFrame({name: counts, "percent": (100 * counts / total).round(1)})
+
+
+def subjects_per_protocol(per_subject: pd.DataFrame) -> pd.DataFrame:
+    """Subjects with at least one scan of each cervix protocol."""
+    protocols = per_subject.columns.drop("n_protocols")
+    counts = (per_subject[protocols] > 0).sum().rename_axis("protocol")
+    return with_percent(counts, len(per_subject), "n_subjects")
+
+
+def subjects_by_protocol_count(per_subject: pd.DataFrame) -> pd.DataFrame:
+    """Subjects by how many of the 4 cervix protocols they have."""
+    counts = per_subject["n_protocols"].value_counts().reindex(range(5), fill_value=0)
+    return with_percent(counts.rename_axis("n_protocols"), len(per_subject), "n_subjects")
+
+
 def field_coverage(df: pd.DataFrame) -> pd.DataFrame:
     """How many cervix scans have each of frequency, gain, sector width / zoom and depth."""
     cervix = df[df["protocol"].notna()]
-    found = {
-        "frequency": cervix["frequency"].notna(),
-        "gain": cervix["gain"].notna(),
-        "sector width / zoom": cervix["sector_width"].notna() & cervix["zoom"].notna(),
-        "depth": cervix["depth"].notna(),
-    }
-    rows = []
-    for field, mask in found.items():
-        rows.append({"field": field, "n_scans": int(mask.sum()), "percent": round(100 * mask.mean(), 1)})
-    return pd.DataFrame(rows).set_index("field")
+    counts = pd.Series({
+        "frequency": cervix["frequency"].notna().sum(),
+        "gain": cervix["gain"].notna().sum(),
+        "sector width / zoom": (cervix["sector_width"].notna() & cervix["zoom"].notna()).sum(),
+        "depth": cervix["depth"].notna().sum(),
+    })
+    return with_percent(counts.rename_axis("field"), len(cervix), "n_scans")
 
 
 def subjects_with_lengths(df: pd.DataFrame) -> tuple:
@@ -57,26 +72,28 @@ def main():
     args = parser.parse_args()
 
     df = read_results(args.input, args.path_column, args.subject_column)
-    cervix_scans = int(df["protocol"].notna().sum())
-
     per_subject = protocols_per_subject(df)
     if args.output:
         per_subject.to_csv(args.output)
-    print("(A) Cervix protocols per subject")
-    print(per_subject.to_string())
+    n_subjects = len(per_subject)
+
+    print(f"(A) Cervix protocols, out of {n_subjects} subjects")
+    print("Subjects with at least one scan of each protocol")
+    print(subjects_per_protocol(per_subject).to_string())
     print()
-    print("Subjects by number of the 4 cervix protocols they have")
-    n_subjects = per_subject["n_protocols"].value_counts().reindex(range(5), fill_value=0)
-    print(n_subjects.rename_axis("n_protocols").rename("n_subjects").to_string())
+    print("Subjects by how many of the 4 protocols they have")
+    print(subjects_by_protocol_count(per_subject).to_string())
     print()
 
+    cervix_scans = int(df["protocol"].notna().sum())
     print(f"(B) Cervix scans with each field, out of {cervix_scans} cervix scans")
     print(field_coverage(df).to_string())
     print()
 
     with_lengths, with_cervix = subjects_with_lengths(df)
-    print(f"(C) {with_lengths} of {with_cervix} subjects with cervix scans have CervixL in at least one of them")
-    print(f"    ({len(per_subject)} subjects in total)")
+    print("(C) Subjects with CervixL in at least one cervix scan")
+    print(f"{with_lengths} of {with_cervix} subjects with cervix scans ({100 * with_lengths / with_cervix:.1f}%)")
+    print(f"{with_lengths} of {n_subjects} subjects in total ({100 * with_lengths / n_subjects:.1f}%)")
 
 
 if __name__ == "__main__":
