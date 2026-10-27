@@ -53,9 +53,14 @@ cervix scans have frequency, gain, sector width / zoom and depth, and (C) how ma
 `CervixL`, and how many of those also have frequency, gain, sector width / zoom and depth in at least
 one scan of each protocol. `--output` saves the per-subject protocol counts.
 
+`--patients-excel` adds (E): how many IDs in the Excel file's `Patient` column have 0-4 of the
+protocols, and how many are not in the input. IDs are matched to the image's parent folder in
+`--path-column` (`path/PATIENT-ID/filename.ext`), so it needs `--path-column`.
+
 ```
 python get_OCR_stats.py --input ocr_results.csv --subject-column subject_id
 python get_OCR_stats.py --input ocr_results.csv --path-column file_path --output protocols_per_subject.csv
+python get_OCR_stats.py --input ocr_results.csv --path-column file_path --patients-excel patients.xlsx
 ```
 
 Subjects are taken from `--subject-column` if given, otherwise from the parent folder of each image in

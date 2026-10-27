@@ -90,15 +90,29 @@ def complete_subjects(df: pd.DataFrame, per_subject: pd.DataFrame) -> pd.DataFra
     return with_percent(counts.rename_axis("subjects"), len(per_subject), "n_subjects")
 
 
+def excel_patients_by_protocol_count(df: pd.DataFrame, path_column: str, excel_path: str) -> pd.DataFrame:
+    """Patients in the Excel file's 'Patient' column by how many of the 4 protocols they have, matched on the image's parent folder."""
+    patients = pd.read_excel(excel_path, dtype={"Patient": str})["Patient"].dropna().str.strip().unique()
+    by_folder = df.assign(subject=[Path(path).parent.name for path in df[path_column].astype(str)])
+    per_patient = protocols_per_subject(by_folder)
+    found = per_patient[per_patient.index.isin(patients)]
+    counts = found["n_protocols"].value_counts().reindex(range(5), fill_value=0)
+    counts["not in input"] = len(patients) - len(found)
+    return with_percent(counts.rename_axis("n_protocols"), len(patients), "n_patients")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", required=True, help="OCR results CSV written by main.py")
     parser.add_argument("--subject-column", help="Column with the subject ID")
     parser.add_argument("--path-column", help="Column with the image path, whose parent folder is the subject ID if --subject-column is not given")
     parser.add_argument("--output", help="Optional CSV to save the per-subject protocol counts to")
+    parser.add_argument("--patients-excel", help="Optional Excel file whose 'Patient' IDs are matched to the image's parent folder in --path-column")
     args = parser.parse_args()
     if not args.subject_column and not args.path_column:
         parser.error("give --subject-column or --path-column")
+    if args.patients_excel and not args.path_column:
+        parser.error("--patients-excel needs --path-column")
 
     df = read_results(args.input, args.path_column, args.subject_column)
     per_subject = protocols_per_subject(df)
@@ -128,6 +142,11 @@ def main():
     print(f"(D) Subjects with all 4 protocols and CervixL in at least one cervix scan, out of {n_subjects} subjects")
     print("All fields means frequency, gain, sector width / zoom and depth in at least one scan of each protocol")
     print(complete_subjects(df, per_subject).to_string())
+
+    if args.patients_excel:
+        print()
+        print(f"(E) Patients in {args.patients_excel} by how many of the 4 protocols they have")
+        print(excel_patients_by_protocol_count(df, args.path_column, args.patients_excel).to_string())
 
 
 if __name__ == "__main__":
