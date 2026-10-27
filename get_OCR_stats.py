@@ -90,15 +90,20 @@ def complete_subjects(df: pd.DataFrame, per_subject: pd.DataFrame) -> pd.DataFra
     return with_percent(counts.rename_axis("subjects"), len(per_subject), "n_subjects")
 
 
-def excel_patients_by_protocol_count(df: pd.DataFrame, path_column: str, excel_path: str) -> pd.DataFrame:
-    """Patients in the Excel file's 'Patient' column by how many of the 4 protocols they have, matched on the image's parent folder."""
+def excel_patients_by_protocol_count(df: pd.DataFrame, path_column: str, excel_path: str) -> tuple:
+    """Excel 'Patient' IDs by protocol count (matched on the image's parent folder), and the first 5 with 0 protocols and not in the input."""
     patients = pd.read_excel(excel_path, dtype={"Patient": str})["Patient"].dropna().str.strip().unique()
     by_folder = df.assign(subject=[Path(path).parent.name for path in df[path_column].astype(str)])
     per_patient = protocols_per_subject(by_folder)
     found = per_patient[per_patient.index.isin(patients)]
     counts = found["n_protocols"].value_counts().reindex(range(5), fill_value=0)
     counts["not in input"] = len(patients) - len(found)
-    return with_percent(counts.rename_axis("n_protocols"), len(patients), "n_patients")
+    table = with_percent(counts.rename_axis("n_protocols"), len(patients), "n_patients")
+
+    zero_protocols = set(found.index[found["n_protocols"] == 0])
+    zero_protocol_ids = [patient for patient in patients if patient in zero_protocols][:5]
+    not_in_input_ids = [patient for patient in patients if patient not in per_patient.index][:5]
+    return table, zero_protocol_ids, not_in_input_ids
 
 
 def main():
@@ -146,7 +151,12 @@ def main():
     if args.patients_excel:
         print()
         print(f"(E) Patients in {args.patients_excel} by how many of the 4 protocols they have")
-        print(excel_patients_by_protocol_count(df, args.path_column, args.patients_excel).to_string())
+        table, zero_protocol_ids, not_in_input_ids = excel_patients_by_protocol_count(
+            df, args.path_column, args.patients_excel
+        )
+        print(table.to_string())
+        print(f"First 5 IDs with 0 protocols: {', '.join(zero_protocol_ids)}")
+        print(f"First 5 IDs not in input: {', '.join(not_in_input_ids)}")
 
 
 if __name__ == "__main__":
