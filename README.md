@@ -49,14 +49,17 @@ Fields can be disabled under `fields:` in `ocr_config.yaml`.
 `get_OCR_stats.py` summarises the cervix scans in an output CSV, with counts and percentages:
 (A) how many subjects have each of the 4 cervix protocols and how many have 0-4 of them, (B) how many
 cervix scans have frequency, gain, sector width / zoom and depth, and (C) how many subjects have a
-`CervixL` length in at least one cervix scan. `--output` saves the per-subject protocol counts.
+`CervixL` length in at least one cervix scan, and (D) how many subjects have all 4 protocols and a
+`CervixL`, and how many of those also have frequency, gain, sector width / zoom and depth in at least
+one scan of each protocol. `--output` saves the per-subject protocol counts.
 
 ```
-python get_OCR_stats.py --input ocr_results.csv
-python get_OCR_stats.py --input ocr_results.csv --subject-column subject_id --output protocols_per_subject.csv
+python get_OCR_stats.py --input ocr_results.csv --subject-column subject_id
+python get_OCR_stats.py --input ocr_results.csv --path-column file_path --output protocols_per_subject.csv
 ```
 
-Subjects are taken from `--subject-column` if given, otherwise from each image's parent folder.
+Subjects are taken from `--subject-column` if given, otherwise from the parent folder of each image in
+`--path-column`. One of the two is required.
 
 ## Code layout
 

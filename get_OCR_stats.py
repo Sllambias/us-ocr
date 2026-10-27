@@ -6,7 +6,7 @@ import pandas as pd
 
 
 def read_results(input_path: str, path_column: str, subject_column: str) -> pd.DataFrame:
-    """Read the OCR results and add a 'subject' column (default: the image's parent folder)."""
+    """Read the OCR results and add a 'subject' column from subject_column, or else the image's parent folder."""
     df = pd.read_csv(input_path)
     if subject_column:
         df["subject"] = df[subject_column]
@@ -63,13 +63,42 @@ def subjects_with_lengths(df: pd.DataFrame) -> tuple:
     return with_lengths, cervix["subject"].nunique()
 
 
+def has_all_fields(df: pd.DataFrame) -> pd.Series:
+    """Whether each scan has frequency, gain, sector width / zoom and depth."""
+    return (
+        df["frequency"].notna()
+        & df["gain"].notna()
+        & df["sector_width"].notna()
+        & df["zoom"].notna()
+        & df["depth"].notna()
+    )
+
+
+def complete_subjects(df: pd.DataFrame, per_subject: pd.DataFrame) -> pd.DataFrame:
+    """Subjects with all 4 protocols and a CervixL, and those of them with all fields in a scan of each protocol."""
+    cervix = df[df["protocol"].notna()]
+    all_protocols = per_subject.index[per_subject["n_protocols"] == 4]
+    with_lengths = cervix.loc[cervix["lengths_mm"].notna(), "subject"].unique()
+    complete = all_protocols.intersection(with_lengths)
+
+    per_subject_all_fields = protocols_per_subject(cervix[has_all_fields(cervix)])
+    all_fields = per_subject_all_fields.index[per_subject_all_fields["n_protocols"] == 4]
+    counts = pd.Series({
+        "4 protocols + CervixL": len(complete),
+        "4 protocols + CervixL + all fields in each protocol": len(complete.intersection(all_fields)),
+    })
+    return with_percent(counts.rename_axis("subjects"), len(per_subject), "n_subjects")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", required=True, help="OCR results CSV written by main.py")
-    parser.add_argument("--path-column", default="file_path", help="Name of the path column (default: file_path)")
-    parser.add_argument("--subject-column", help="Column with the subject ID (default: the image's parent folder)")
+    parser.add_argument("--subject-column", help="Column with the subject ID")
+    parser.add_argument("--path-column", help="Column with the image path, whose parent folder is the subject ID if --subject-column is not given")
     parser.add_argument("--output", help="Optional CSV to save the per-subject protocol counts to")
     args = parser.parse_args()
+    if not args.subject_column and not args.path_column:
+        parser.error("give --subject-column or --path-column")
 
     df = read_results(args.input, args.path_column, args.subject_column)
     per_subject = protocols_per_subject(df)
@@ -94,6 +123,11 @@ def main():
     print("(C) Subjects with CervixL in at least one cervix scan")
     print(f"{with_lengths} of {with_cervix} subjects with cervix scans ({100 * with_lengths / with_cervix:.1f}%)")
     print(f"{with_lengths} of {n_subjects} subjects in total ({100 * with_lengths / n_subjects:.1f}%)")
+    print()
+
+    print(f"(D) Subjects with all 4 protocols and CervixL in at least one cervix scan, out of {n_subjects} subjects")
+    print("All fields means frequency, gain, sector width / zoom and depth in at least one scan of each protocol")
+    print(complete_subjects(df, per_subject).to_string())
 
 
 if __name__ == "__main__":
