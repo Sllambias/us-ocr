@@ -141,21 +141,16 @@ def excel_patients_by_protocol_count(
 def patients_by_month(
     by_folder: pd.DataFrame, per_patient: pd.DataFrame, patients: list
 ) -> pd.DataFrame:
-    """Excel patients in the input with fewer than 4 and with all 4 protocols, by the month folder above the patient ID."""
+    """Excel patients in the input by how many of the 4 protocols they have, per month folder above the patient ID."""
     found = per_patient[per_patient.index.isin(patients)]
-    incomplete = found.index[found["n_protocols"] < 4]
-    complete = found.index[found["n_protocols"] == 4]
-    incomplete_images = by_folder[by_folder["subject"].isin(incomplete)]
-    complete_images = by_folder[by_folder["subject"].isin(complete)]
-    counts = pd.DataFrame(
-        {
-            "fewer than 4": incomplete_images.groupby("month")["subject"].nunique(),
-            "all 4": complete_images.groupby("month")["subject"].nunique(),
-        }
-    )
-    counts = counts.fillna(0).astype(int).rename_axis("month")
-    total = counts["fewer than 4"] + counts["all 4"]
-    counts["percent all 4"] = (100 * counts["all 4"] / total).round(1)
+    images = by_folder[by_folder["subject"].isin(found.index)]
+    patient_months = images[["month", "subject"]].drop_duplicates()
+    n_protocols = patient_months["subject"].map(found["n_protocols"])
+    counts = pd.crosstab(patient_months["month"], n_protocols)
+    counts = counts.reindex(columns=range(5), fill_value=0)
+    counts.columns.name = "n_protocols"
+    total = counts.sum(axis=1)
+    counts["percent all 4"] = (100 * counts[4] / total).round(1)
     return counts
 
 

@@ -56,8 +56,8 @@ one scan of each protocol. `--output` saves the per-subject protocol counts.
 `--patients-excel` adds (E): how many IDs in the Excel file's `Patient` column have 0-4 of the
 protocols, and how many are not in the input. IDs are matched to the image's parent folder in
 `--path-column` (`path/PATIENT-ID/filename.ext`), so it needs `--path-column`. It also prints, for
-each month folder (`path/MONTH/PATIENT-ID/filename.ext`), how many of these patients have fewer than
-4 and all 4 protocols, and the percentage with all 4.
+each month folder (`path/MONTH/PATIENT-ID/filename.ext`), how many of these patients have 0-4 of the
+protocols, and the percentage with all 4.
 
 ```
 python get_OCR_stats.py --input ocr_results.csv --subject-column subject_id
