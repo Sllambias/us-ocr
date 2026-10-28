@@ -57,8 +57,8 @@ one scan of each protocol. `--output` saves the per-subject protocol counts.
 protocols, and how many are not in the input. IDs are matched to the image's parent folder in
 `--path-column` (`path/PATIENT-ID/filename.ext`), so it needs `--path-column`. It also prints, for
 each month folder (`path/MONTH/PATIENT-ID/filename.ext`), how many of these patients have 0-4 of the
-protocols, the percentage with all 4, and how many subjects in the whole input (also those not in the
-Excel file) have 0 protocols.
+protocols and the percentage with all 4, followed by how many of the patients with 0 protocols are in
+the input without cervix scans and how many are not in the input at all.
 
 ```
 python get_OCR_stats.py --input ocr_results.csv --subject-column subject_id

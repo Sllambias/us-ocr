@@ -141,7 +141,7 @@ def excel_patients_by_protocol_count(
 def patients_by_month(
     by_folder: pd.DataFrame, per_patient: pd.DataFrame, patients: list
 ) -> pd.DataFrame:
-    """Excel patients in the input by how many of the 4 protocols they have, and all input subjects with 0, per month folder."""
+    """Excel patients in the input by how many of the 4 protocols they have, per month folder above the patient ID."""
     found = per_patient[per_patient.index.isin(patients)]
     images = by_folder[by_folder["subject"].isin(found.index)]
     patient_months = images[["month", "subject"]].drop_duplicates()
@@ -149,17 +149,17 @@ def patients_by_month(
     counts = pd.crosstab(patient_months["month"], n_protocols)
     counts = counts.reindex(columns=range(5), fill_value=0)
     counts.columns.name = "n_protocols"
-
-    all_zero = per_patient.index[per_patient["n_protocols"] == 0]
-    all_zero_images = by_folder[by_folder["subject"].isin(all_zero)]
-    all_zero_counts = all_zero_images.groupby("month")["subject"].nunique()
-    # Keep months that only have 0-protocol subjects outside the Excel file
-    counts = counts.reindex(counts.index.union(all_zero_counts.index), fill_value=0)
-
     total = counts.sum(axis=1)
     counts["percent all 4"] = (100 * counts[4] / total).round(1)
-    counts["0 in all input"] = all_zero_counts.reindex(counts.index, fill_value=0)
     return counts
+
+
+def zero_protocol_patients(per_patient: pd.DataFrame, patients: list) -> tuple:
+    """Excel patients with 0 protocols that are in the input, and those not in the input at all."""
+    found = per_patient[per_patient.index.isin(patients)]
+    in_input = int((found["n_protocols"] == 0).sum())
+    not_in_input = len(patients) - len(found)
+    return in_input, not_in_input
 
 
 def main():
@@ -236,10 +236,14 @@ def main():
         print(
             "Of these, patients in the input by month folder (path/MONTH/PATIENT-ID/file)"
         )
-        print(
-            "'0 in all input' counts every input subject with 0 protocols, also those not in the Excel file"
-        )
         print(patients_by_month(by_folder, per_patient, patients).to_string())
+        print()
+        zero_in_input, not_in_input = zero_protocol_patients(per_patient, patients)
+        print(f"Excel patients with 0 protocols: {zero_in_input + not_in_input}")
+        print(
+            f"{zero_in_input} are in the input but have no cervix scans (the 0 column above)"
+        )
+        print(f"{not_in_input} are not in the input at all, so they have no month folder")
 
 
 if __name__ == "__main__":
