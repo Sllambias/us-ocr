@@ -138,15 +138,25 @@ def excel_patients_by_protocol_count(
     return table
 
 
-def incomplete_patients_by_month(
+def patients_by_month(
     by_folder: pd.DataFrame, per_patient: pd.DataFrame, patients: list
 ) -> pd.DataFrame:
-    """Excel patients in the input with fewer than 4 protocols, by the month folder above the patient ID."""
+    """Excel patients in the input with fewer than 4 and with all 4 protocols, by the month folder above the patient ID."""
     found = per_patient[per_patient.index.isin(patients)]
     incomplete = found.index[found["n_protocols"] < 4]
-    images = by_folder[by_folder["subject"].isin(incomplete)]
-    counts = images.groupby("month")["subject"].nunique()
-    return with_percent(counts, len(incomplete), "n_patients")
+    complete = found.index[found["n_protocols"] == 4]
+    incomplete_images = by_folder[by_folder["subject"].isin(incomplete)]
+    complete_images = by_folder[by_folder["subject"].isin(complete)]
+    counts = pd.DataFrame(
+        {
+            "fewer than 4": incomplete_images.groupby("month")["subject"].nunique(),
+            "all 4": complete_images.groupby("month")["subject"].nunique(),
+        }
+    )
+    counts = counts.fillna(0).astype(int).rename_axis("month")
+    total = counts["fewer than 4"] + counts["all 4"]
+    counts["percent all 4"] = (100 * counts["all 4"] / total).round(1)
+    return counts
 
 
 def main():
@@ -221,11 +231,9 @@ def main():
         print(table.to_string())
         print()
         print(
-            "Of these, patients in the input with fewer than 4 protocols by month folder (path/MONTH/PATIENT-ID/file)"
+            "Of these, patients in the input by month folder (path/MONTH/PATIENT-ID/file)"
         )
-        print(
-            incomplete_patients_by_month(by_folder, per_patient, patients).to_string()
-        )
+        print(patients_by_month(by_folder, per_patient, patients).to_string())
 
 
 if __name__ == "__main__":
