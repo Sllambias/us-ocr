@@ -1,12 +1,15 @@
 """Summary statistics for the cervix scans in an OCR results CSV written by main.py."""
+
 import argparse
 from pathlib import Path
 
 import pandas as pd
 
 
-def read_results(input_path: str, path_column: str, subject_column: str) -> pd.DataFrame:
-    """Read the OCR results and add a 'subject' column (default: the image's parent folder)."""
+def read_results(
+    input_path: str, path_column: str, subject_column: str
+) -> pd.DataFrame:
+    """Read the OCR results and add a 'subject' column from subject_column, or else the image's parent folder."""
     df = pd.read_csv(input_path)
     if subject_column:
         df["subject"] = df[subject_column]
@@ -19,7 +22,9 @@ def protocols_per_subject(df: pd.DataFrame) -> pd.DataFrame:
     """Scans per cervix protocol for each subject, and how many of the 4 protocols they have."""
     protocols = ["Cervix", "Cervix dybde 1", "Cervix dybde 2", "Cervix dybde 3"]
     counts = pd.crosstab(df["subject"], df["protocol"])
-    counts = counts.reindex(index=df["subject"].unique(), columns=protocols, fill_value=0)
+    counts = counts.reindex(
+        index=df["subject"].unique(), columns=protocols, fill_value=0
+    )
     counts = counts.sort_index()
     counts.columns.name = None
     counts["n_protocols"] = (counts[protocols] > 0).sum(axis=1)
@@ -41,18 +46,24 @@ def subjects_per_protocol(per_subject: pd.DataFrame) -> pd.DataFrame:
 def subjects_by_protocol_count(per_subject: pd.DataFrame) -> pd.DataFrame:
     """Subjects by how many of the 4 cervix protocols they have."""
     counts = per_subject["n_protocols"].value_counts().reindex(range(5), fill_value=0)
-    return with_percent(counts.rename_axis("n_protocols"), len(per_subject), "n_subjects")
+    return with_percent(
+        counts.rename_axis("n_protocols"), len(per_subject), "n_subjects"
+    )
 
 
 def field_coverage(df: pd.DataFrame) -> pd.DataFrame:
     """How many cervix scans have each of frequency, gain, sector width / zoom and depth."""
     cervix = df[df["protocol"].notna()]
-    counts = pd.Series({
-        "frequency": cervix["frequency"].notna().sum(),
-        "gain": cervix["gain"].notna().sum(),
-        "sector width / zoom": (cervix["sector_width"].notna() & cervix["zoom"].notna()).sum(),
-        "depth": cervix["depth"].notna().sum(),
-    })
+    counts = pd.Series(
+        {
+            "frequency": cervix["frequency"].notna().sum(),
+            "gain": cervix["gain"].notna().sum(),
+            "sector width / zoom": (
+                cervix["sector_width"].notna() & cervix["zoom"].notna()
+            ).sum(),
+            "depth": cervix["depth"].notna().sum(),
+        }
+    )
     return with_percent(counts.rename_axis("field"), len(cervix), "n_scans")
 
 
@@ -63,13 +74,116 @@ def subjects_with_lengths(df: pd.DataFrame) -> tuple:
     return with_lengths, cervix["subject"].nunique()
 
 
+def has_all_fields(df: pd.DataFrame) -> pd.Series:
+    """Whether each scan has frequency, gain, sector width / zoom and depth."""
+    return (
+        df["frequency"].notna()
+        & df["gain"].notna()
+        & df["sector_width"].notna()
+        & df["zoom"].notna()
+        & df["depth"].notna()
+    )
+
+
+def complete_subjects(df: pd.DataFrame, per_subject: pd.DataFrame) -> pd.DataFrame:
+    """Subjects with all 4 protocols and a CervixL, and those of them with all fields in a scan of each protocol."""
+    cervix = df[df["protocol"].notna()]
+    all_protocols = per_subject.index[per_subject["n_protocols"] == 4]
+    with_lengths = cervix.loc[cervix["lengths_mm"].notna(), "subject"].unique()
+    complete = all_protocols.intersection(with_lengths)
+
+    per_subject_all_fields = protocols_per_subject(cervix[has_all_fields(cervix)])
+    all_fields = per_subject_all_fields.index[
+        per_subject_all_fields["n_protocols"] == 4
+    ]
+    counts = pd.Series(
+        {
+            "4 protocols + CervixL": len(complete),
+            "4 protocols + CervixL + all fields in each protocol": len(
+                complete.intersection(all_fields)
+            ),
+        }
+    )
+    return with_percent(counts.rename_axis("subjects"), len(per_subject), "n_subjects")
+
+
+def read_patients(excel_path: str) -> list:
+    """Unique IDs in the Excel file's 'Patient' column, in file order."""
+    return list(
+        pd.read_excel(excel_path, dtype={"Patient": str})["Patient"]
+        .dropna()
+        .str.strip()
+        .unique()
+    )
+
+
+def with_path_folders(df: pd.DataFrame, path_column: str) -> pd.DataFrame:
+    """Set 'subject' to the image's parent folder (patient ID) and 'month' to the folder above it."""
+    paths = [Path(path) for path in df[path_column].astype(str)]
+    return df.assign(
+        subject=[path.parent.name for path in paths],
+        month=[path.parent.parent.name for path in paths],
+    )
+
+
+def excel_patients_by_protocol_count(
+    per_patient: pd.DataFrame, patients: list
+) -> tuple:
+    """Excel patients by protocol count, and the first 5 with 0 protocols and not in the input."""
+    found = per_patient[per_patient.index.isin(patients)]
+    counts = found["n_protocols"].value_counts().reindex(range(5), fill_value=0)
+    counts["not in input"] = len(patients) - len(found)
+    table = with_percent(counts.rename_axis("n_protocols"), len(patients), "n_patients")
+
+    return table
+
+
+def patients_by_month(
+    by_folder: pd.DataFrame, per_patient: pd.DataFrame, patients: list
+) -> pd.DataFrame:
+    """Excel patients in the input by how many of the 4 protocols they have, per month folder above the patient ID."""
+    found = per_patient[per_patient.index.isin(patients)]
+    images = by_folder[by_folder["subject"].isin(found.index)]
+    patient_months = images[["month", "subject"]].drop_duplicates()
+    n_protocols = patient_months["subject"].map(found["n_protocols"])
+    counts = pd.crosstab(patient_months["month"], n_protocols)
+    counts = counts.reindex(columns=range(5), fill_value=0)
+    counts.columns.name = "n_protocols"
+    total = counts.sum(axis=1)
+    counts["percent all 4"] = (100 * counts[4] / total).round(1)
+    return counts
+
+
+def zero_protocol_patients(per_patient: pd.DataFrame, patients: list) -> tuple:
+    """Excel patients with 0 protocols that are in the input, and those not in the input at all."""
+    found = per_patient[per_patient.index.isin(patients)]
+    in_input = int((found["n_protocols"] == 0).sum())
+    not_in_input = len(patients) - len(found)
+    return in_input, not_in_input
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", required=True, help="OCR results CSV written by main.py")
-    parser.add_argument("--path-column", default="file_path", help="Name of the path column (default: file_path)")
-    parser.add_argument("--subject-column", help="Column with the subject ID (default: the image's parent folder)")
-    parser.add_argument("--output", help="Optional CSV to save the per-subject protocol counts to")
+    parser.add_argument(
+        "--input", required=True, help="OCR results CSV written by main.py"
+    )
+    parser.add_argument("--subject-column", help="Column with the subject ID")
+    parser.add_argument(
+        "--path-column",
+        help="Column with the image path, whose parent folder is the subject ID if --subject-column is not given",
+    )
+    parser.add_argument(
+        "--output", help="Optional CSV to save the per-subject protocol counts to"
+    )
+    parser.add_argument(
+        "--patients-excel",
+        help="Optional Excel file whose 'Patient' IDs are matched to the image's parent folder in --path-column",
+    )
     args = parser.parse_args()
+    if not args.subject_column and not args.path_column:
+        parser.error("give --subject-column or --path-column")
+    if args.patients_excel and not args.path_column:
+        parser.error("--patients-excel needs --path-column")
 
     df = read_results(args.input, args.path_column, args.subject_column)
     per_subject = protocols_per_subject(df)
@@ -92,8 +206,44 @@ def main():
 
     with_lengths, with_cervix = subjects_with_lengths(df)
     print("(C) Subjects with CervixL in at least one cervix scan")
-    print(f"{with_lengths} of {with_cervix} subjects with cervix scans ({100 * with_lengths / with_cervix:.1f}%)")
-    print(f"{with_lengths} of {n_subjects} subjects in total ({100 * with_lengths / n_subjects:.1f}%)")
+    print(
+        f"{with_lengths} of {with_cervix} subjects with cervix scans ({100 * with_lengths / with_cervix:.1f}%)"
+    )
+    print(
+        f"{with_lengths} of {n_subjects} subjects in total ({100 * with_lengths / n_subjects:.1f}%)"
+    )
+    print()
+
+    print(
+        f"(D) Subjects with all 4 protocols and CervixL in at least one cervix scan, out of {n_subjects} subjects"
+    )
+    print(
+        "All fields means frequency, gain, sector width / zoom and depth in at least one scan of each protocol"
+    )
+    print(complete_subjects(df, per_subject).to_string())
+
+    if args.patients_excel:
+        print()
+        print(
+            f"(E) Patients in {args.patients_excel} by how many of the 4 protocols they have"
+        )
+        patients = read_patients(args.patients_excel)
+        by_folder = with_path_folders(df, args.path_column)
+        per_patient = protocols_per_subject(by_folder)
+        table = excel_patients_by_protocol_count(per_patient, patients)
+        print(table.to_string())
+        print()
+        print(
+            "Of these, patients in the input by month folder (path/MONTH/PATIENT-ID/file)"
+        )
+        print(patients_by_month(by_folder, per_patient, patients).to_string())
+        print()
+        zero_in_input, not_in_input = zero_protocol_patients(per_patient, patients)
+        print(f"Excel patients with 0 protocols: {zero_in_input + not_in_input}")
+        print(
+            f"{zero_in_input} are in the input but have no cervix scans (the 0 column above)"
+        )
+        print(f"{not_in_input} are not in the input at all, so they have no month folder")
 
 
 if __name__ == "__main__":
