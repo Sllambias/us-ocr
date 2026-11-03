@@ -15,6 +15,8 @@ def build_config(args, parser) -> dict:
         config["output"] = args.output
     if args.path_column:
         config["path_column"] = args.path_column
+    if args.root:
+        config["root"] = args.root
     if args.batch_size:
         config["batch_size"] = args.batch_size
     if args.save_text:
@@ -36,6 +38,7 @@ def main():
     parser.add_argument("--input", help="CSV with a path column, or a .txt with one path per line")
     parser.add_argument("--output", help="Output CSV path")
     parser.add_argument("--path-column", help="Name of the path column (default: file_path)")
+    parser.add_argument("--root", help="Directory prepended to each path when loading; the output keeps the paths as given")
     parser.add_argument("--batch-size", type=int)
     parser.add_argument("--save-text", action="store_true", help="Include the raw OCR text in the output")
     parser.add_argument("--num-workers", type=int, help="Parallel OCR processes (default: 1)")

@@ -1,5 +1,6 @@
 input: 'image_paths.csv'     # CSV with a path column, or a .txt with one path per line
 path_column: 'file_path'
+root: ''                     # prepended to each path when loading; the output keeps the paths as given
 output: 'ocr_results.csv'
 batch_size: 8
 num_workers: 1               # parallel OCR processes, each loads its own model

@@ -19,6 +19,10 @@ python main.py --input image_paths.csv --path-column file_path --output ocr_resu
 python main.py --config ocr_config.yaml
 ```
 
+`--root DIR` prepends `DIR` to each path when loading the images, e.g. when the paths are relative or
+the data is mounted somewhere else. The output CSV keeps the paths as they are in the input, and resuming
+matches on those, so the same output can be continued with a different root.
+
 ### Parallel runs and resuming
 
 `--num-workers N` runs N OCR processes in parallel, each with its own copy of the model.

@@ -80,6 +80,7 @@ def run_ocr(config: dict) -> pd.DataFrame:
     fields = {f: True for f in ALL_FIELDS}
     fields.update(config.get("fields") or {})
     path_column = config.get("path_column", "file_path")
+    root = config.get("root") or ""
     batch_size = int(config.get("batch_size", 8))
     num_workers = int(config.get("num_workers", 1))
     save_every = int(config.get("save_every", 100))
@@ -94,7 +95,11 @@ def run_ocr(config: dict) -> pd.DataFrame:
         print(f"Skipping {done.sum()} paths already in {output_path}")
         df = df[~done].reset_index(drop=True)
 
+    # Only the loaded paths get the root, the output keeps path_column as given
     paths = df[path_column].astype(str)
+    if root:
+        # Strip leading slashes so root is prepended to absolute paths too
+        paths = paths.str.lstrip("/").apply(lambda p: os.path.join(root, p))
     batches = []
     for start in range(0, len(df), batch_size):
         batches.append(list(paths.iloc[start : start + batch_size].items()))
