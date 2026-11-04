@@ -26,11 +26,34 @@ matches on those, so the same output can be continued with a different root.
 ### Parallel runs and resuming
 
 `--num-workers N` runs N OCR processes in parallel, each with its own copy of the model.
-The output CSV is written every `--save-every` batches (default 100) and at the end.
+New rows are appended to the output CSV every `--save-every` batches (default 100) and at the end,
+so the rows are roughly, but not exactly, in input order.
 
 If the output CSV already exists, paths already in it are skipped and new rows are appended,
 so an interrupted run can be restarted with the same command. Rows with an `error` are not
 retried; delete them from the output CSV to re-run them.
+
+### Array jobs
+
+`--num-chunks N --chunk-index I` splits the input into N contiguous chunks and processes only chunk `I`
+(0 to N-1). This way each task of an HPC array job processes its own chunk, and all tasks append to the
+same output CSV:
+
+```
+#!/bin/bash
+#SBATCH --array=0-9
+#SBATCH --cpus-per-task=8
+
+python main.py --config ocr_config.yaml --num-chunks 10 --chunk-index $SLURM_ARRAY_TASK_ID
+```
+
+The input is split before skipping paths already in the output, so a task gets the same chunk when it is
+resubmitted. To re-run only some tasks, resubmit their indices (e.g. `--array=3,7`) with the same
+`--num-chunks`. Each task splits the CPUs allocated to it between its `--num-workers`.
+
+The tasks take turns writing to the output through a lock on `<output>.lock`. This needs the output
+to be on a file system where file locks work across nodes, as they do on NFS and GPFS. Lustre
+needs the `flock` mount option.
 
 ## Output
 
@@ -78,7 +101,7 @@ Subjects are taken from `--subject-column` if given, otherwise from the parent f
 | file | responsibility |
 |---|---|
 | `main.py` | entry point, argument parsing and config merging |
-| `pipeline.py` | batching, parallel docTR OCR, resuming, writing the CSV |
+| `pipeline.py` | chunking, batching, parallel docTR OCR, resuming, appending to the CSV |
 | `image_io.py` | reading the path list; loading DICOM/PNG/JPEG as RGB arrays |
 | `parsers.py` | regex extractors for lengths, frequency, gain, zoom, depth, protocol |
 | `get_OCR_stats.py` | per-subject protocol counts and field coverage of an output CSV |
