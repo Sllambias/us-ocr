@@ -23,6 +23,8 @@ def build_config(args, parser) -> dict:
         config["save_text"] = True
     if args.num_workers:
         config["num_workers"] = args.num_workers
+    if args.threads_per_worker:
+        config["threads_per_worker"] = args.threads_per_worker
     if args.save_every:
         config["save_every"] = args.save_every
     if args.num_chunks:
@@ -52,6 +54,7 @@ def main():
     parser.add_argument("--batch-size", type=int)
     parser.add_argument("--save-text", action="store_true", help="Include the raw OCR text in the output")
     parser.add_argument("--num-workers", type=int, help="Parallel OCR processes (default: 1)")
+    parser.add_argument("--threads-per-worker", type=int, help="Torch CPU threads in each OCR process (default: 1)")
     parser.add_argument("--save-every", type=int, help="Append to the output CSV every N batches (default: 100)")
     parser.add_argument("--num-chunks", type=int, help="Split the input into N chunks, e.g. one per array job (default: 1)")
     parser.add_argument("--chunk-index", type=int, help="Chunk to process, from 0 to N-1, e.g. $SLURM_ARRAY_TASK_ID")

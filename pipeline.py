@@ -108,13 +108,6 @@ def append_output(df, results, columns, output_path):
         f.write(rows.to_csv(index=False, header=write_header))
 
 
-def available_cpus() -> int:
-    """CPUs this process may run on, which on a cluster are the ones allocated to the job."""
-    if hasattr(os, "sched_getaffinity"):  # not on macOS
-        return len(os.sched_getaffinity(0))
-    return os.cpu_count() or 1
-
-
 def run_ocr(config: dict):
     fields = {f: True for f in ALL_FIELDS}
     fields.update(config.get("fields") or {})
@@ -122,6 +115,7 @@ def run_ocr(config: dict):
     root = config.get("root") or ""
     batch_size = int(config.get("batch_size", 8))
     num_workers = int(config.get("num_workers", 1))
+    threads_per_worker = int(config.get("threads_per_worker", 1))
     save_every = int(config.get("save_every", 100))
     save_text = bool(config.get("save_text", False))
     num_chunks = int(config.get("num_chunks", 1))
@@ -155,11 +149,9 @@ def run_ocr(config: dict):
     for start in range(0, len(df), batch_size):
         batches.append(list(paths.iloc[start : start + batch_size].items()))
 
-    # Split the CPU threads between workers so they don't oversubscribe the cores
-    threads = max(1, available_cpus() // num_workers)
     results = {}
     with ProcessPoolExecutor(
-        num_workers, initializer=torch.set_num_threads, initargs=(threads,)
+        num_workers, initializer=torch.set_num_threads, initargs=(threads_per_worker,)
     ) as executor:
         futures = []
         for batch in batches:

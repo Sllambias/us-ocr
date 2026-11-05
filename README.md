@@ -25,7 +25,9 @@ matches on those, so the same output can be continued with a different root.
 
 ### Parallel runs and resuming
 
-`--num-workers N` runs N OCR processes in parallel, each with its own copy of the model.
+`--num-workers N` runs N OCR processes in parallel, each with its own copy of the model, and
+`--threads-per-worker T` gives each of them T torch CPU threads (both default to 1), so a run uses
+N × T CPUs. Neither is inferred from the machine.
 New rows are appended to the output CSV every `--save-every` batches (default 100) and at the end,
 so the rows are roughly, but not exactly, in input order.
 
@@ -44,12 +46,13 @@ same output CSV:
 #SBATCH --array=0-9
 #SBATCH --cpus-per-task=8
 
-python main.py --config ocr_config.yaml --num-chunks 10 --chunk-index $SLURM_ARRAY_TASK_ID
+python main.py --config ocr_config.yaml --num-workers 2 --threads-per-worker 4 \
+    --num-chunks 10 --chunk-index $SLURM_ARRAY_TASK_ID
 ```
 
 The input is split before skipping paths already in the output, so a task gets the same chunk when it is
 resubmitted. To re-run only some tasks, resubmit their indices (e.g. `--array=3,7`) with the same
-`--num-chunks`. Each task splits the CPUs allocated to it between its `--num-workers`.
+`--num-chunks`. Set `--cpus-per-task` to `num_workers × threads_per_worker`.
 
 The tasks take turns writing to the output through a lock on `<output>.lock`. This needs the output
 to be on a file system where file locks work across nodes, as they do on NFS and GPFS. Lustre
