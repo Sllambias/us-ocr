@@ -1,6 +1,7 @@
 import fcntl
 import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures.process import BrokenProcessPool
 from contextlib import contextmanager
 from functools import cache
 
@@ -150,17 +151,26 @@ def run_ocr(config: dict):
         batches.append(list(paths.iloc[start : start + batch_size].items()))
 
     results = {}
-    with ProcessPoolExecutor(
-        num_workers, initializer=torch.set_num_threads, initargs=(threads_per_worker,)
-    ) as executor:
-        futures = []
-        for batch in batches:
-            futures.append(executor.submit(ocr_batch, batch, fields, save_text))
-        for i, future in enumerate(tqdm(as_completed(futures), total=len(futures))):
-            results.update(future.result())
-            if (i + 1) % save_every == 0:
-                append_output(df, results, columns, output_path)
-                results = {}
-
-    append_output(df, results, columns, output_path)
+    try:
+        with ProcessPoolExecutor(
+            num_workers, initializer=torch.set_num_threads, initargs=(threads_per_worker,)
+        ) as executor:
+            futures = []
+            for batch in batches:
+                futures.append(executor.submit(ocr_batch, batch, fields, save_text))
+            for i, future in enumerate(tqdm(as_completed(futures), total=len(futures))):
+                results.update(future.result())
+                if (i + 1) % save_every == 0:
+                    append_output(df, results, columns, output_path)
+                    results = {}
+    except BrokenProcessPool as e:
+        e.add_note(
+            "An OCR worker was killed, most likely for running out of memory. Each worker needs "
+            "about 4 GB with batch_size 8, so request num_workers x 4 GB plus 1 GB, or use fewer "
+            "workers. The finished rows are saved, so running the same command again continues."
+        )
+        raise
+    finally:
+        # Save the finished rows even if a worker crashed, so they aren't redone
+        append_output(df, results, columns, output_path)
     print(f"Appended {len(df)} rows to {output_path}")
