@@ -4,8 +4,10 @@ root: ''                     # prepended to each path when loading; the output k
 output: 'ocr_results.csv'
 batch_size: 8
 num_workers: 1               # parallel OCR processes, each loads its own model
-save_every: 100              # write the output CSV every N batches
+threads_per_worker: 1        # torch CPU threads in each OCR process; a run uses num_workers x this many CPUs
+save_every: 100              # append to the output CSV every N batches
 save_text: false             # include the raw OCR text as a column
+num_chunks: 1                # split the input into N chunks for array jobs; pick one with --chunk-index
 
 # Set any field to false to skip it
 fields:
